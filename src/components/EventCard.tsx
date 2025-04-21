@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -34,7 +33,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
     <Card className="event-card overflow-hidden h-full flex flex-col">
       <div className="relative">
         <img 
-          src={event.imageUrl} 
+          src={event.imageUrl || '/placeholder-event.jpg'} 
           alt={event.title}
           className="w-full h-48 object-cover"
         />
@@ -48,7 +47,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         
         <div className="flex items-center text-gray-600 mb-2">
           <Calendar className="h-4 w-4 mr-2" />
-          <span className="text-sm">{formatDate(event.date)} | {event.time}</span>
+          <span className="text-sm">{formatDate(event.date)} | {event.startTime} - {event.endTime}</span>
         </div>
         
         <div className="flex items-center text-gray-600 mb-4">

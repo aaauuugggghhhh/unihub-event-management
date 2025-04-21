@@ -1,12 +1,13 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar, Bell, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const Navbar = () => {
-  const { user, login, logout } = useAuth();
+  const { user, signInWithGoogle, signOut } = useAuth();
+  const { unreadCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -34,20 +35,25 @@ const Navbar = () => {
             </Link>
             {user ? (
               <div className="flex items-center space-x-4">
-                <Link to="/notifications" className="hover:text-secondary">
+                <Link to="/notifications" className="hover:text-secondary relative">
                   <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
                 <div className="relative group">
                   <Button variant="ghost" className="p-1">
                     <User className="h-5 w-5" />
-                    <span className="ml-2">{user.name.split(' ')[0]}</span>
+                    <span className="ml-2">{user.user_metadata?.full_name?.split(' ')[0] || 'User'}</span>
                   </Button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                  <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
                     <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Profile
                     </Link>
                     <button 
-                      onClick={logout}
+                      onClick={signOut}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Sign Out
@@ -56,7 +62,7 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <Button onClick={login} variant="secondary">
+              <Button onClick={signInWithGoogle} variant="secondary">
                 Sign In
               </Button>
             )}
@@ -110,7 +116,7 @@ const Navbar = () => {
                   className="block py-2 hover:text-secondary"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Notifications
+                  Notifications {unreadCount > 0 && `(${unreadCount})`}
                 </Link>
                 <Link 
                   to="/profile" 
@@ -121,7 +127,7 @@ const Navbar = () => {
                 </Link>
                 <button
                   onClick={() => {
-                    logout();
+                    signOut();
                     setMobileMenuOpen(false);
                   }}
                   className="block w-full text-left py-2 hover:text-secondary"
@@ -130,7 +136,7 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Button onClick={login} variant="secondary" className="w-full">
+              <Button onClick={signInWithGoogle} variant="secondary" className="w-full">
                 Sign In
               </Button>
             )}

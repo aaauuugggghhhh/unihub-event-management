@@ -1,18 +1,49 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import EventsList from "@/components/EventsList";
-import { getEventsByCategory } from "@/data/events";
+import { eventService } from "@/services/eventService";
+import { Event } from "@/types";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const EventsPage = () => {
   const location = useLocation();
+  const { toast } = useToast();
   const queryParams = new URLSearchParams(location.search);
   const categoryParam = queryParams.get("category");
   
-  const eventsData = categoryParam 
-    ? getEventsByCategory(categoryParam)
-    : getEventsByCategory("all");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const allEvents = await eventService.getAllEvents();
+
+        const filteredEvents = categoryParam
+          ? allEvents.filter(event => event.category === categoryParam)
+          : allEvents;
+
+        setEvents(filteredEvents);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load events';
+        setError(errorMessage);
+        toast({
+          title: "Error Loading Events",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [categoryParam, toast]);
 
   return (
     <Layout>
@@ -22,7 +53,17 @@ const EventsPage = () => {
           Browse and register for upcoming events on campus
         </p>
         
-        <EventsList initialEvents={eventsData} />
+        {isLoading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-10 text-red-600">
+            <p>Error loading events: {error}</p>
+          </div>
+        ) : (
+          <EventsList initialEvents={events} />
+        )}
       </div>
     </Layout>
   );

@@ -1,37 +1,40 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/hooks/useAuth';
+import { NotificationsProvider } from '@/hooks/useNotifications';
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import EventsPage from "./pages/EventsPage";
-import EventDetail from "./pages/EventDetail";
-import CalendarPage from "./pages/CalendarPage";
-import NotFound from "./pages/NotFound";
-import AdminPage from "./pages/AdminPage";
+import HomePage from '@/pages/Index';
+import EventsPage from '@/pages/EventsPage';
+import EventDetailsPage from '@/pages/EventDetail';
+import CalendarPage from '@/pages/CalendarPage';
+import AdminPage from '@/pages/AdminPage';
+import ProfilePage from '@/pages/ProfilePage';
+import NotificationsPage from '@/pages/NotificationsPage';
+import AuthPage from '@/pages/AuthPage';
+import AuthCallbackPage from '@/pages/AuthCallbackPage';
+import NotFoundPage from '@/pages/NotFound';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <Router>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+        <NotificationsProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/events" element={<EventsPage />} />
-            <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/events/:id" element={<EventDetailsPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </BrowserRouter>
+          <Toaster />
+        </NotificationsProvider>
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </Router>
+  );
+}
 
 export default App;

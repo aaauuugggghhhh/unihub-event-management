@@ -1,14 +1,13 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import EventCard from "./EventCard";
 import { Event } from "@/types";
-import { getEventsByCategory } from "@/data/events";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
 interface EventsListProps {
-  initialEvents?: Event[];
+  initialEvents: Event[];
   showFilters?: boolean;
 }
 
@@ -27,26 +26,25 @@ const EventsList: React.FC<EventsListProps> = ({
   initialEvents,
   showFilters = true,
 }) => {
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const currentCategory = queryParams.get("category") || "all";
+  
   const [searchQuery, setSearchQuery] = useState("");
-  const [events, setEvents] = useState<Event[]>(
-    initialEvents || getEventsByCategory("all")
-  );
 
-  // Update events when activeCategory changes (in place of relying on the prop).
-  useEffect(() => {
-    setEvents(getEventsByCategory(activeCategory));
-  }, [activeCategory]);
+  const handleCategoryChange = (category: string) => {
+    if (category === "all") {
+      navigate("/events");
+    } else {
+      navigate(`/events?category=${category}`);
+    }
+  };
 
-  // Adjust displayed events if parent (e.g. URL param) causes initialEvents to change
-  useEffect(() => {
-    if (initialEvents) setEvents(initialEvents);
-  }, [initialEvents]);
-
-  const filteredEvents = events.filter(event => 
-    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.organizer.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEvents = initialEvents.filter(event => 
+    (event.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+    (event.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+    (event.organizer?.toLowerCase() || '').includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -63,13 +61,13 @@ const EventsList: React.FC<EventsListProps> = ({
             />
           </div>
           
-          <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory}>
+          <Tabs value={currentCategory} onValueChange={handleCategoryChange}>
             <TabsList className="w-full overflow-x-auto flex flex-nowrap justify-start md:justify-center py-1 px-1 h-auto">
               {categories.map((category) => (
                 <TabsTrigger
                   key={category.value}
                   value={category.value}
-                  className="px-4 py-2 whitespace-nowrap"
+                  className="px-4 py-2 whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
                   {category.label}
                 </TabsTrigger>

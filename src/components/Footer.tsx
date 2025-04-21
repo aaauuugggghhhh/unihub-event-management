@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -10,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-primary">EngageU</h3>
+            <h3 className="text-lg font-semibold mb-4 text-primary">UNIHUB</h3>
             <p className="text-gray-600 mb-4">
               Your one-stop platform for university events and activities.
             </p>
@@ -56,8 +55,23 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/events?category=arts" className="text-gray-600 hover:text-primary transition-colors">
+                  Arts
+                </Link>
+              </li>
+              <li>
                 <Link to="/events?category=career" className="text-gray-600 hover:text-primary transition-colors">
                   Career
+                </Link>
+              </li>
+              <li>
+                <Link to="/events?category=workshop" className="text-gray-600 hover:text-primary transition-colors">
+                  Workshops
+                </Link>
+              </li>
+              <li>
+                <Link to="/events?category=other" className="text-gray-600 hover:text-primary transition-colors">
+                  Other
                 </Link>
               </li>
             </ul>
@@ -66,15 +80,14 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-primary">Contact</h3>
             <ul className="space-y-2 text-gray-600">
-              <li>University Campus</li>
-              <li>support@engageu.edu</li>
-              <li>(555) 123-4567</li>
+              <li>University of Hyderabad</li>
+              <li>pranavkrishna6242@gmail.com</li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
-          <p>&copy; {currentYear} EngageU. All rights reserved.</p>
+          <p>&copy; {currentYear} UNIHUB. All rights reserved.</p>
         </div>
       </div>
     </footer>

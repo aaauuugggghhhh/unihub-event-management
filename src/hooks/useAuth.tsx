@@ -1,129 +1,122 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User } from "@/types";
-import { useToast } from "@/components/ui/use-toast";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { User } from '@/types';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
   user: User | null;
-  login: () => void;
-  logout: () => void;
-  registerForEvent: (eventId: string) => void;
-  unregisterFromEvent: (eventId: string) => void;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
   isRegisteredForEvent: (eventId: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user data
-const mockUser: User = {
-  id: "user-1",
-  name: "Jane Student",
-  email: "jane.student@university.edu",
-  registeredEvents: ["event-1", "event-3"],
-};
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  // Simulate retrieving user on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem("engageU_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const login = () => {
-    // In a real app, this would be an API call
-    setUser(mockUser);
-    localStorage.setItem("engageU_user", JSON.stringify(mockUser));
-    toast({
-      title: "Welcome back!",
-      description: `Signed in as ${mockUser.name}`,
-    });
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("engageU_user");
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully",
-    });
-  };
-
-  const registerForEvent = (eventId: string) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to register for events",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (user.registeredEvents.includes(eventId)) {
-      toast({
-        title: "Already registered",
-        description: "You are already registered for this event",
-      });
-      return;
-    }
-
-    const updatedUser = {
-      ...user,
-      registeredEvents: [...user.registeredEvents, eventId],
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem("engageU_user", JSON.stringify(updatedUser));
+  const updateUserWithRegistrations = async (supabaseUser: User) => {
+    const { data: registrations } = await supabase
+      .from('event_registrations')
+      .select('event_id')
+      .eq('user_id', supabaseUser.id);
     
-    toast({
-      title: "Registration successful",
-      description: "You have been registered for this event",
-    });
-  };
-
-  const unregisterFromEvent = (eventId: string) => {
-    if (!user) return;
-
-    const updatedUser = {
-      ...user,
-      registeredEvents: user.registeredEvents.filter(id => id !== eventId),
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem("engageU_user", JSON.stringify(updatedUser));
-    
-    toast({
-      title: "Unregistered",
-      description: "You have been unregistered from this event",
+    setUser({
+      ...supabaseUser,
+      registeredEvents: registrations?.map(r => r.event_id) || []
     });
   };
 
   const isRegisteredForEvent = (eventId: string): boolean => {
-    return user ? user.registeredEvents.includes(eventId) : false;
+    return user?.registeredEvents?.includes(eventId) || false;
   };
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      registerForEvent, 
-      unregisterFromEvent,
-      isRegisteredForEvent
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        updateUserWithRegistrations(session.user as User);
+      }
+    });
 
-export const useAuth = (): AuthContextType => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        updateUserWithRegistrations(session.user as User);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        if (error.message.includes('provider is not enabled')) {
+          toast({
+            title: 'Authentication Error',
+            description: 'Google sign-in is not configured. Please contact the administrator.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Error signing in',
+            description: 'There was a problem signing in with Google. Please try again.',
+            variant: 'destructive',
+          });
+        }
+        console.error('Error signing in with Google:', error);
+      }
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      toast({
+        title: 'Error signing in',
+        description: 'There was a problem signing in with Google. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast({
+        title: 'Signed out successfully',
+        description: 'You have been signed out of your account.',
+      });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: 'Error signing out',
+        description: 'There was a problem signing out. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const value = {
+    user,
+    signInWithGoogle,
+    signOut,
+    isRegisteredForEvent,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

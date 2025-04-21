@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+# UniHub Event Management
 
-## Project info
+A modern event management system built with Next.js, React, and Supabase, designed for university events and activities.
 
-**URL**: https://lovable.dev/projects/c636611f-001e-47e1-b5d7-12e1ccf4d306
+## Features
 
-## How can I edit this code?
+- User Authentication with Google OAuth
+- Event Creation and Management
+- Event Registration System
+- Real-time Notifications
+- Admin Dashboard
+- Responsive Design
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend:** Next.js, React, Tailwind CSS
+- **Backend:** Supabase (PostgreSQL, Authentication, Real-time subscriptions)
+- **Authentication:** Google OAuth
+- **Styling:** Tailwind CSS, Shadcn UI
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c636611f-001e-47e1-b5d7-12e1ccf4d306) and start prompting.
+## Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+Before you begin, ensure you have:
+- Node.js (v18 or higher)
+- npm or yarn
+- A Supabase account and project
 
-**Use your preferred IDE**
+## Environment Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository
+2. Create a `.env.local` file in the root directory with the following variables:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-**Edit a file directly in GitHub**
+## Installation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
 
-**Use GitHub Codespaces**
+2. Run the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## What technologies are used for this project?
+## Database Setup
 
-This project is built with:
+1. Run the SQL migrations in your Supabase project:
+   - Navigate to the SQL editor in your Supabase dashboard
+   - Execute the migration files found in `/supabase/migrations`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contributing
 
-## How can I deploy this project?
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Simply open [Lovable](https://lovable.dev/projects/c636611f-001e-47e1-b5d7-12e1ccf4d306) and click on Share -> Publish.
+## License
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.

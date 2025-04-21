@@ -1,11 +1,10 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
+import { User as SupabaseUser } from '@supabase/supabase-js';
+
+export interface User extends SupabaseUser {
   registeredEvents: string[];
 }
 
-export type EventCategory = "academic" | "social" | "sports" | "arts" | "career" | "workshop" | "other";
+export type EventCategory = 'academic' | 'social' | 'sports' | 'arts' | 'career' | 'workshop' | 'other';
 
 export interface Event {
   id: string;
@@ -17,7 +16,7 @@ export interface Event {
   location: string;
   category: EventCategory;
   organizer: string;
-  imageUrl: string;
   capacity: number;
   registeredCount: number;
-}
+  imageUrl?: string;
+} 

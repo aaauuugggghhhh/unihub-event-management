@@ -1,14 +1,41 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Search } from "lucide-react";
+import { Calendar, Search, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import EventsList from "@/components/EventsList";
-import { getUpcomingEvents } from "@/data/events";
+import { eventService } from "@/services/eventService";
+import { Event } from "@/types";
+import { isAfter, parseISO, startOfToday, isSameDay } from 'date-fns';
 
 const Index = () => {
-  const featuredEvents = getUpcomingEvents(3);
+  const [featuredEvents, setFeaturedEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFeaturedEvents = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const allEvents = await eventService.getAllEvents();
+        
+        const today = startOfToday();
+        const upcomingEvents = allEvents
+          .filter(event => isAfter(parseISO(event.date), today) || isSameDay(parseISO(event.date), today))
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          
+        setFeaturedEvents(upcomingEvents.slice(0, 3));
+
+      } catch (err) {
+        console.error("Failed to fetch featured events:", err);
+        setError("Could not load featured events."); 
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeaturedEvents();
+  }, []);
 
   return (
     <Layout>
@@ -51,7 +78,21 @@ const Index = () => {
             </Link>
           </div>
           
-          <EventsList initialEvents={featuredEvents} showFilters={false} />
+          {isLoading ? (
+             <div className="flex justify-center items-center h-40">
+               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             </div>
+           ) : error ? (
+             <div className="text-center py-10 text-red-600">
+               <p>{error}</p>
+             </div>
+           ) : featuredEvents.length > 0 ? (
+             <EventsList initialEvents={featuredEvents} showFilters={false} />
+           ) : (
+             <div className="text-center py-10 text-gray-500">
+                <p>No upcoming events featured right now. Check back soon!</p>
+             </div>
+           )}
         </div>
       </section>
 
