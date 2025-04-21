@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 const categories = [
   { value: "academic", label: "Academic" },
@@ -16,8 +17,11 @@ const categories = [
   { value: "other", label: "Other" },
 ];
 
+const ADMIN_EMAIL = "jane.student@university.edu";
+
 const AdminPage: React.FC = () => {
   const { toast } = useToast();
+  const { user, login } = useAuth();
   const [form, setForm] = useState({
     title: "",
     date: "",
@@ -67,6 +71,32 @@ const AdminPage: React.FC = () => {
     });
   };
 
+  // If not logged in, show prompt to sign in
+  if (!user) {
+    return (
+      <Layout>
+        <div className="container mx-auto max-w-md py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4">Admin Access Required</h1>
+          <p className="mb-6 text-gray-700">Please sign in as the admin to access this page.</p>
+          <Button onClick={login} className="mx-auto">Sign In</Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  // If logged in but not the admin, block access
+  if (user.email !== ADMIN_EMAIL) {
+    return (
+      <Layout>
+        <div className="container mx-auto max-w-md py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4 text-red-600">Access Denied</h1>
+          <p className="mb-6">You do not have permission to view this page.</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Admin access granted
   return (
     <Layout>
       <div className="container mx-auto max-w-2xl py-12 px-4">
@@ -156,3 +186,4 @@ const AdminPage: React.FC = () => {
 };
 
 export default AdminPage;
+
