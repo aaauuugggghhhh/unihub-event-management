@@ -1,9 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EventCard from "./EventCard";
-import { Event, EventCategory } from "@/types";
+import { Event } from "@/types";
 import { getEventsByCategory } from "@/data/events";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -12,26 +12,37 @@ interface EventsListProps {
   showFilters?: boolean;
 }
 
+const categories: { value: string; label: string }[] = [
+  { value: "all", label: "All Events" },
+  { value: "academic", label: "Academic" },
+  { value: "social", label: "Social" },
+  { value: "sports", label: "Sports" },
+  { value: "arts", label: "Arts" },
+  { value: "career", label: "Career" },
+  { value: "workshop", label: "Workshops" },
+  { value: "other", label: "Other" },
+];
+
 const EventsList: React.FC<EventsListProps> = ({ 
   initialEvents,
-  showFilters = true 
+  showFilters = true,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  
-  const events = initialEvents || getEventsByCategory(activeCategory);
-  
-  const categories: { value: string; label: string }[] = [
-    { value: "all", label: "All Events" },
-    { value: "academic", label: "Academic" },
-    { value: "social", label: "Social" },
-    { value: "sports", label: "Sports" },
-    { value: "arts", label: "Arts" },
-    { value: "career", label: "Career" },
-    { value: "workshop", label: "Workshops" },
-    { value: "other", label: "Other" },
-  ];
-  
+  const [events, setEvents] = useState<Event[]>(
+    initialEvents || getEventsByCategory("all")
+  );
+
+  // Update events when activeCategory changes (in place of relying on the prop).
+  useEffect(() => {
+    setEvents(getEventsByCategory(activeCategory));
+  }, [activeCategory]);
+
+  // Adjust displayed events if parent (e.g. URL param) causes initialEvents to change
+  useEffect(() => {
+    if (initialEvents) setEvents(initialEvents);
+  }, [initialEvents]);
+
   const filteredEvents = events.filter(event => 
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,3 +96,4 @@ const EventsList: React.FC<EventsListProps> = ({
 };
 
 export default EventsList;
+
