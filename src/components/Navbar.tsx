@@ -16,7 +16,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-2">
             <Link to="/" className="flex items-center space-x-2">
               <Calendar className="h-6 w-6" />
-              <span className="font-bold text-xl">EngageU</span>
+              <span className="font-bold text-xl">UNIHUB</span>
             </Link>
           </div>
 
@@ -27,6 +27,10 @@ const Navbar = () => {
             </Link>
             <Link to="/calendar" className="hover:text-secondary transition-colors">
               My Calendar
+            </Link>
+            {/* NEW: Admin Link */}
+            <Link to="/admin" className="hover:text-secondary transition-colors">
+              Admin
             </Link>
             {user ? (
               <div className="flex items-center space-x-4">
@@ -91,6 +95,13 @@ const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               My Calendar
+            </Link>
+            <Link
+              to="/admin"
+              className="block py-2 hover:text-secondary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Admin
             </Link>
             {user ? (
               <>
