@@ -3,16 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { format, parseISO, isEqual, isSameMonth, isSameDay } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { 
-  Calendar as CalendarComponent,
-  CalendarControls,
-  CalendarGrid,
-  CalendarHead,
-  CalendarHeadCell,
-  CalendarRow,
-  CalendarCell,
-  CalendarBody,
-} from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/hooks/useAuth";
@@ -124,78 +115,44 @@ const CalendarPage = () => {
           </div>
         ) : view === "month" ? (
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <CalendarComponent
-              mode="single"
-              selected={date}
-              onSelect={(date) => date && setDate(date)}
-              className="w-full"
-              components={{
-                CalendarControls: ({ onPreviousMonth, onNextMonth }) => (
-                  <div className="flex justify-between items-center px-4 py-3 border-b">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={onPreviousMonth}
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <h2 className="font-semibold">
-                      {format(date, "MMMM yyyy")}
-                    </h2>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={onNextMonth}
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </Button>
-                  </div>
-                ),
-                CalendarCell: ({ day, ...props }) => {
-                  const dayEvents = getEventsForDay(day);
-                  const isCurrentMonth = isSameMonth(day, date);
-                  
-                  return (
-                    <CalendarCell
-                      {...props}
-                      day={day}
-                      className={`relative h-24 ${
-                        !isCurrentMonth ? "text-gray-400" : ""
-                      } ${
-                        isSameDay(day, new Date()) ? "bg-primary/5" : ""
-                      }`}
-                    >
-                      <div className="absolute top-1 right-1">
-                        {format(day, "d")}
-                      </div>
-                      
-                      <div className="mt-5 overflow-y-auto max-h-16">
-                        {dayEvents.map((event) => (
-                          <Link
-                            to={`/events/${event.id}`}
-                            key={event.id}
-                            className="block px-1 mb-1 truncate"
-                          >
-                            <div 
-                              className={`text-xs rounded py-1 px-1.5 truncate 
-                              ${event.category === "academic" ? "bg-blue-100 text-blue-800" :
-                                event.category === "social" ? "bg-purple-100 text-purple-800" :
-                                event.category === "sports" ? "bg-green-100 text-green-800" :
-                                event.category === "career" ? "bg-amber-100 text-amber-800" :
-                                event.category === "arts" ? "bg-pink-100 text-pink-800" :
-                                "bg-gray-100 text-gray-800"}
-                              `}
-                            >
-                              {event.title}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </CalendarCell>
-                  );
-                }
-              }}
-            />
+            <div className="flex justify-between items-center px-4 py-3 border-b">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const newDate = new Date(date);
+                  newDate.setMonth(date.getMonth() - 1);
+                  setDate(newDate);
+                }}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <h2 className="font-semibold">
+                {format(date, "MMMM yyyy")}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const newDate = new Date(date);
+                  newDate.setMonth(date.getMonth() + 1);
+                  setDate(newDate);
+                }}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="p-4">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(newDate) => newDate && setDate(newDate)}
+                className="rounded-md border"
+                month={date}
+                onMonthChange={setDate}
+              />
+            </div>
             
             {/* Display events for selected date */}
             <div className="p-4 border-t">
