@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
+  base: '/unihub-event-management/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
