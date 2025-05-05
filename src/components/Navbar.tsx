@@ -9,6 +9,21 @@ const Navbar = () => {
   const { user, signInWithGoogle, signOut } = useAuth();
   const { unreadCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showConsentPopup, setShowConsentPopup] = useState(false);
+
+  const handleSignIn = () => {
+    setShowConsentPopup(true); // Show the consent popup
+  };
+
+  const handleConsentYes = () => {
+    setShowConsentPopup(false); // Hide the popup
+    signInWithGoogle(); // Proceed with sign-in
+  };
+
+  const handleConsentNo = () => {
+    setShowConsentPopup(false); // Hide the popup
+    alert("Consent not given. Sign-in canceled.");
+  };
 
   return (
     <nav className="bg-primary text-primary-foreground shadow-md">
@@ -29,7 +44,6 @@ const Navbar = () => {
             <Link to="/calendar" className="hover:text-secondary transition-colors">
               My Calendar
             </Link>
-            {/* NEW: Admin Link */}
             <Link to="/admin" className="hover:text-secondary transition-colors">
               Admin
             </Link>
@@ -62,7 +76,7 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <Button onClick={signInWithGoogle} variant="secondary">
+              <Button onClick={handleSignIn} variant="secondary">
                 Sign In
               </Button>
             )}
@@ -136,10 +150,27 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Button onClick={signInWithGoogle} variant="secondary" className="w-full">
+              <Button onClick={handleSignIn} variant="secondary" className="w-full">
                 Sign In
               </Button>
             )}
+          </div>
+        )}
+
+        {/* Consent Popup */}
+        {showConsentPopup && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg text-center">
+            <p className="mb-4 text-gray-800 font-medium">Do you consent to share your information for authentication?</p>
+              <div className="flex justify-center space-x-4">
+              <Button onClick={handleConsentYes} variant="default" className="text-white bg-blue-600 hover:bg-blue-700">
+                Yes
+              </Button>
+                <Button onClick={handleConsentNo} variant="secondary">
+                  No
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

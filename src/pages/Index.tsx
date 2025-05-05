@@ -19,19 +19,22 @@ const Index = () => {
         setIsLoading(true);
         setError(null);
         const allEvents = await eventService.getAllEvents();
-        
+        console.log('Fetched events:', allEvents);
+
         const today = startOfToday();
         const upcomingEvents = allEvents
           .filter(event => isAfter(parseISO(event.date), today) || isSameDay(parseISO(event.date), today))
           .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-          
-        setFeaturedEvents(upcomingEvents.slice(0, 3));
 
+        console.log('Upcoming events:', upcomingEvents);
+        setFeaturedEvents(upcomingEvents.slice(0, 3));
       } catch (err) {
-        console.error("Failed to fetch featured events:", err);
-        setError("Could not load featured events."); 
+        console.error('Error fetching events:', err);
+        setError('Could not load featured events.');
       } finally {
         setIsLoading(false);
+        console.log('Loading state:', isLoading);
+        console.log('Error state:', error);
       }
     };
     fetchFeaturedEvents();
